@@ -43,8 +43,7 @@
         .cart-title { font-size: 12px; font-weight: bold; color: #ffcc00; padding-bottom: 4px; border-bottom: 1px solid #161616; }
         .cart-item { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; }
         .cart-totals { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; border-top: 1px solid #161616; padding-top: 6px; }
-        .btn-email { background: #00ff66; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; }
-
+        
         .admin-panel { background: #111111; border: 2px solid #ffcc00; border-radius: 12px; padding: 12px; margin-top: 25px; display: flex; flex-direction: column; gap: 8px; }
         .admin-title { font-size: 12px; font-weight: bold; color: #ffcc00; text-align: center; text-transform: uppercase; }
         .admin-input, .admin-select { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 8px; border-radius: 6px; font-size: 12px; }
@@ -52,13 +51,11 @@
     </style>
 </head>
 <body>
-
     <div class="mobile-container">
         <div class="header">
             <div class="logo-main">GES</div>
             <div class="subtitle">Grupo Empresarial Sayser</div>
         </div>
-
         <div class="categories-menu">
             <button class="tab-btn active" onclick="switchTab(event, 'cosmeticos')">Cosméticos</button>
             <button class="tab-btn" onclick="switchTab(event, 'alimento')">Alimento</button>
@@ -70,15 +67,13 @@
             <button class="tab-btn" onclick="switchTab(event, 'eletricas')">Elétricas</button>
             <button class="tab-btn contract-tab" onclick="switchTab(event, 'contrato')">📜 Contrato & Cadastro</button>
         </div>
-
         <div class="products-container" id="productDisplayArea"></div>
-
         <div id="contractArea" style="display: none;">
             <div class="contract-card">
                 <div class="product-title" style="color: #00ff66;">Termos e Contrato GES</div>
                 <div class="terms-box">
                     <strong>REGULAMENTO ADMINISTRATIVO SAYSER</strong><br><br>
-                    Os bônus de indicação serão conferidos mediante faturamento final enviado por e-mail para a equipe de auditoria da GES.
+                    Os bônus de indicação serão conferidos mediante faturamento final enviado por e-mail.
                 </div>
                 <div class="checkbox-row">
                     <input type="checkbox" id="agreeTerms">
@@ -86,19 +81,15 @@
                 </div>
             </div>
         </div>
-
         <div class="cart-section">
             <div class="cart-title">🛒 Conferência do Pedido:</div>
-            <div id="cartItemsList">
-                <p style="font-size: 11px; color: #444; text-align: center;">Carrinho vazio.</p>
-            </div>
+            <div id="cartItemsList"><p style="font-size: 11px; color: #444; text-align: center;">Carrinho vazio.</p></div>
             <div class="cart-totals">
                 <span>Produtos: <span id="totalPrice" style="color:#ffcc00;">R$ 0,00</span></span>
                 <span>Bônus: <span id="totalBonus" style="color:#00ff66;">R$ 0,00</span></span>
             </div>
             <button class="btn-email" onclick="sendOrderEmail()">📩 Confirmar e Enviar por E-mail</button>
         </div>
-
         <div class="admin-panel">
             <div class="admin-title">⚙️ Área do Dono (Cadastro)</div>
             <select id="newProdCat" class="admin-select">
@@ -119,7 +110,6 @@
             <button class="btn-save-new" onclick="addCustomProduct()">➕ Gravar Produto no Site</button>
         </div>
     </div>
-
     <script>
         const defaultProducts = {
             cosmeticos: { name: "Perfume Premium GES", desc: "Fragrância de alta fixação corporativa.", price: 150.00, bonus: 15.00, img: "https://unsplash.com" },
@@ -127,3 +117,4 @@
             hidraulico: { name: "Torneira Luxo Inox", desc: "Material inoxidável com vedação de alta durabilidade.", price: 120.00, bonus: 18.00, img: "https://unsplash.com" },
             eletrons: { name: "Kit Componentes Elétrons", desc: "Placas e conectores para pequenos circuitos.", price: 75.00, bonus: 11.25, img: "https://unsplash.com" },
             eletronico: { name: "DRONE V88 CÂMERA HD", desc: "Giroscópio embutido e transmissão de imagens ao vivo.", price: 180.00, bonus: 27.00, img: "https://unsplash.com" },
+            construcao: { name: "Argamassa Interna AC1", desc: "Rendimento ideal para pisos cerâmicos.", price: 28.00, bonus: 4.20, img: "https://unsplash.com" },
