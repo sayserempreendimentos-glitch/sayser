@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GES - Área do Dono</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#000;color:#fff;padding:15px}
+.container{max-width:420px;margin:auto}
+.box{background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:18px;margin-top:20px}
+h1{text-align:center;color:#ffcc00;font-size:22px;margin-bottom:5px}
+h2{color:#ffcc00;font-size:15px;margin-bottom:15px}
+.sub{text-align:center;color:#777;font-size:11px;margin-bottom:20px}
+input,select,button{
+width:100%;padding:12px;margin-bottom:9px;border-radius:7px;
+border:1px solid #333;background:#000;color:#fff
+}
+button{background:#ffcc00;color:#000;border:0;font-weight:bold;cursor:pointer}
+.logout{background:#ff3333;color:#fff}
+.status{text-align:center;color:#00ff66;font-size:11px;margin:8px 0}
+.product{
+background:#050505;border:1px solid #222;border-radius:8px;
+padding:10px;margin-top:8px
+}
+.product strong{font-size:13px}
+.info{color:#888;font-size:10px;margin-top:4px}
+.row{display:flex;gap:7px;margin-top:8px}
+.row button{margin:0}
+.edit{background:#ffcc00}
+.del{background:#ff3333;color:#fff}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div id="login" class="box">
+<h1>GES</h1>
+<div class="sub">ÁREA DO DONO</div>
+
+<input id="email" type="email" placeholder="E-mail">
+<input id="password" type="password" placeholder="Senha">
+
+<button onclick="login()">ENTRAR</button>
+
+<div id="loginStatus" class="status"></div>
+</div>
+
+
+<!-- ADMIN -->
+<div id="admin" class="hidden">
+
+<div class="box">
+<h1>GES</h1>
+<div class="sub">GERENCIAMENTO DE PRODUTOS</div>
+
+<button class="logout" onclick="logout()">SAIR</button>
+</div>
+
+
+<div class="box">
+
+<h2 id="formTitle">NOVO PRODUTO</h2>
+
+<select id="category">
+<option value="cosmeticos">Cosméticos</option>
+<option value="alimento">Alimento</option>
+<option value="hidraulico">Hidráulico</option>
+<option value="eletrons">Elétrons</option>
+<option value="eletronico">Eletrônico</option>
+<option value="construcao">Construção</option>
+<option value="bairroquiz">Bairro Quiz</option>
+<option value="eletricas">Elétricas</option>
+</select>
+
+<input id="name" placeholder="Nome do produto">
+<input id="desc" placeholder="Descrição">
+<input id="price" type="number" step="0.01" placeholder="Preço">
+<input id="bonus" type="number" step="0.01" placeholder="Bônus (%)">
+<input id="image" placeholder="URL da imagem">
+
+<button onclick="saveProduct()">SALVAR PRODUTO</button>
+<button onclick="clearForm()">LIMPAR</button>
+
+<div id="status" class="status"></div>
+
+</div>
+
+
+<div class="box">
+<h2>PRODUTOS CADASTRADOS</h2>
+<div id="products"></div>
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const LOGIN_EMAIL="admin@sayser.com";
+const LOGIN_PASSWORD="123456";
+
+let editing=null;
+
+const defaultProducts={
+cosmeticos:{
+name:"Perfume Premium GES",
+desc:"Fragrância de alta fixação corporativa.",
+price:150,
+bonusPercent:10,
+img:""
+},
+alimento:{
+name:"Cesta de Alimentos Premium",
+desc:"Mantimentos essenciais.",
+price:150,
+bonusPercent:15,
+img:""
+},
+hidraulico:{
+name:"Torneira Luxo Inox",
+desc:"Material inoxidável com vedação de alta durabilidade.",
+price:120,
+bonusPercent:15,
+img:""
+},
+eletrons:{
+name:"Kit Componentes Elétrons",
+desc:"Placas e conectores para pequenos circuitos.",
+price:75,
+bonusPercent:15,
+img:""
+},
+eletronico:{
+name:"DRONE V88 CÂMERA HD",
+desc:"Giroscópio embutido e transmissão de imagens.",
+price:180,
+bonusPercent:15,
+img:""
+},
+construcao:{
+name:"Argamassa Interna AC1",
+desc:"Rendimento ideal para pisos cerâmicos.",
+price:28,
+bonusPercent:15,
+img:""
+},
+bairroquiz:{
+name:"Produto Bairro Quiz",
+desc:"Produto cadastrado pelo administrador.",
+price:50,
+bonusPercent:10,
+img:""
+},
+eletricas:{
+name:"Produto Elétrico",
+desc:"Produto cadastrado pelo administrador.",
+price:80,
+bonusPercent:10,
+img:""
+}
+};
+
+
+let products=JSON.parse(
+localStorage.getItem("SAYSER_GES_PRODUCTS")
+)||defaultProducts;
+
+
+function login(){
+
+let email=document.getElementById("email").value.trim();
+let password=document.getElementById("password").value;
+
+if(email===LOGIN_EMAIL && password===LOGIN_PASSWORD){
+
+document.getElementById("login").classList.add("hidden");
+document.getElementById("admin").classList.remove("hidden");
+
+render();
+
+}else{
+
+document.getElementById("loginStatus").textContent=
+"E-mail ou senha incorretos.";
+
+}
+
+}
+
+
+function logout(){
+
+document.getElementById("admin").classList.add("hidden");
+document.getElementById("login").classList.remove("hidden");
+
+}
+
+
+function saveProduct(){
+
+let category=document.getElementById("category").value;
+let name=document.getElementById("name").value.trim();
+let desc=document.getElementById("desc").value.trim();
+let price=Number(document.getElementById("price").value);
+let bonus=Number(document.getElementById("bonus").value);
+let image=document.getElementById("image").value.trim();
+
+if(!name || !price){
+
+document.getElementById("status").textContent=
+"Preencha nome e preço.";
+
+return;
+}
+
+products[category]={
+name:name,
+desc:desc,
+price:price,
+bonusPercent:bonus||0,
+img:image
+};
+
+localStorage.setItem(
+"SAYSER_GES_PRODUCTS",
+JSON.stringify(products)
+);
+
+editing=null;
+
+clearForm();
+
+document.getElementById("status").textContent=
+"Produto salvo.";
+
+render();
+
+}
+
+
+function editProduct(category){
+
+let p=products[category];
+
+editing=category;
+
+document.getElementById("category").value=category;
+document.getElementById("name").value=p.name;
+document.getElementById("desc").value=p.desc;
+document.getElementById("price").value=p.price;
+document.getElementById("bonus").value=p.bonusPercent||0;
+document.getElementById("image").value=p.img||"";
+
+document.getElementById("formTitle").textContent=
+"EDITANDO PRODUTO";
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+
+function deleteProduct(category){
+
+if(!confirm("Excluir este produto?"))return;
+
+delete products[category];
+
+localStorage.setItem(
+"SAYSER_GES_PRODUCTS",
+JSON.stringify(products)
+);
+
+render();
+
+}
+
+
+function clearForm(){
+
+document.getElementById("name").value="";
+document.getElementById("desc").value="";
+document.getElementById("price").value="";
+document.getElementById("bonus").value="";
+document.getElementById("image").value="";
+
+editing=null;
+
+document.getElementById("formTitle").textContent=
+"NOVO PRODUTO";
+
+}
+
+
+function render(){
+
+let area=document.getElementById("products");
+
+area.innerHTML="";
+
+Object.keys(products).forEach(category=>{
+
+let p=products[category];
+
+let bonus=
+Number(p.price)*(Number(p.bonusPercent||0)/100);
+
+let div=document.createElement("div");
+
+div.className="product";
+
+div.innerHTML=`
+<strong>${escapeHTML(p.name)}</strong>
+
+<div class="info">
+Categoria: ${category}<br>
+Preço: R$ ${Number(p.price).toFixed(2).replace(".",",")}<br>
+Bônus: R$ ${bonus.toFixed(2).replace(".",",")}
+</div>
+
+<div class="row">
+
+<button class="edit"
+onclick="editProduct('${category}')">
+EDITAR
+</button>
+
+<button class="del"
+onclick="deleteProduct('${category}')">
+EXCLUIR
+</button>
+
+</div>
+`;
+
+area.appendChild(div);
+
+});
+
+}
+
+
+function escapeHTML(text){
+
+return String(text||"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
