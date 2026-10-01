@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GES - Editor</title>
+
+<style>
+body{
+margin:0;
+background:#111;
+color:white;
+font-family:Arial;
+padding:12px
+}
+.box{
+max-width:480px;
+margin:auto
+}
+h1{
+text-align:center;
+margin:8px
+}
+input,select{
+width:100%;
+padding:9px;
+margin:4px 0 9px;
+box-sizing:border-box;
+background:#222;
+color:white;
+border:1px solid #555;
+border-radius:5px
+}
+button{
+padding:9px 14px;
+margin:3px;
+border:0;
+border-radius:5px;
+font-weight:bold;
+cursor:pointer
+}
+.verde{background:#19c37d}
+.amarelo{background:#e5a500}
+.vermelho{background:#d33;color:white}
+.cinza{background:#555;color:white}
+.item{
+border:1px solid #444;
+padding:9px;
+margin-top:8px;
+border-radius:6px
+}
+.item img{
+width:80px;
+height:60px;
+object-fit:contain;
+display:block;
+margin-bottom:5px
+}
+#painel{display:none}
+#preview{
+display:none;
+width:100px;
+height:80px;
+object-fit:contain;
+margin:5px 0
+}
+</style>
+</head>
+
+<body>
+
+<div id="login" class="box">
+
+<h1>GES</h1>
+
+<input id="email" placeholder="E-mail">
+<input id="senha" type="password" placeholder="Senha">
+
+<button class="verde" onclick="entrar()">ENTRAR</button>
+
+</div>
+
+
+<div id="painel" class="box">
+
+<h1>EDITOR GES</h1>
+
+<select id="categoria">
+<option value="cosmeticos">Cosméticos</option>
+<option value="alimento">Alimento</option>
+<option value="hidraulico">Hidráulico</option>
+<option value="eletrons">Elétrons</option>
+<option value="eletronico">Eletrônico</option>
+<option value="construcao">Construção</option>
+<option value="bairroquiz">Bairro Quiz</option>
+<option value="eletricas">Elétricas</option>
+</select>
+
+<input id="nome" placeholder="Nome do produto">
+<input id="descricao" placeholder="Descrição">
+<input id="preco" type="number" step="0.01" placeholder="Preço">
+<input id="bonus" type="number" step="0.01" placeholder="Bônus %">
+
+<input id="foto" type="file" accept="image/*">
+<img id="preview">
+
+<button class="verde" onclick="salvar()">SALVAR</button>
+<button class="cinza" onclick="limpar()">LIMPAR</button>
+
+<div id="lista"></div>
+
+</div>
+
+
+<script>
+
+var produtos = JSON.parse(
+localStorage.getItem("SAYSER_GES_PRODUCTS") || "{}"
+);
+
+var editandoCategoria = "";
+var editandoIndice = -1;
+var imagem = "";
+
+
+function entrar(){
+
+var email = document.getElementById("email").value;
+var senha = document.getElementById("senha").value;
+
+if(email === "admin@sayser.com" && senha === "123456"){
+
+document.getElementById("login").style.display="none";
+document.getElementById("painel").style.display="block";
+
+mostrar();
+
+}else{
+
+alert("E-mail ou senha incorretos.");
+
+}
+
+}
+
+
+document.getElementById("foto").onchange=function(){
+
+var arquivo=this.files[0];
+
+if(!arquivo)return;
+
+var leitor=new FileReader();
+
+leitor.onload=function(){
+
+imagem=leitor.result;
+
+document.getElementById("preview").src=imagem;
+document.getElementById("preview").style.display="block";
+
+};
+
+leitor.readAsDataURL(arquivo);
+
+};
+
+
+function salvar(){
+
+var categoria=document.getElementById("categoria").value;
+
+var produto={
+nome:document.getElementById("nome").value,
+descricao:document.getElementById("descricao").value,
+preco:document.getElementById("preco").value,
+bonus:document.getElementById("bonus").value,
+imagem:imagem
+};
+
+if(!produto.nome){
+
+alert("Digite o nome do produto.");
+
+return;
+
+}
+
+if(!produtos[categoria]){
+produtos[categoria]=[];
+}
+
+if(editandoIndice >= 0){
+
+produtos[editandoCategoria][editandoIndice]=produto;
+
+}else{
+
+produtos[categoria].push(produto);
+
+}
+
+localStorage.setItem(
+"SAYSER_GES_PRODUCTS",
+JSON.stringify(produtos)
+);
+
+alert("PRODUTO SALVO COM SUCESSO");
+
+limpar();
+mostrar();
+
+}
+
+
+function editar(categoria,indice){
+
+var p=produtos[categoria][indice];
+
+document.getElementById("categoria").value=categoria;
+document.getElementById("nome").value=p.nome || "";
+document.getElementById("descricao").value=p.descricao || "";
+document.getElementById("preco").value=p.preco || "";
+document.getElementById("bonus").value=p.bonus || "";
+
+imagem=p.imagem || "";
+
+if(imagem){
+
+document.getElementById("preview").src=imagem;
+document.getElementById("preview").style.display="block";
+
+}
+
+editandoCategoria=categoria;
+editandoIndice=indice;
+
+window.scrollTo(0,0);
+
+}
+
+
+function excluir(categoria,indice){
+
+if(confirm("Excluir este produto?")){
+
+produtos[categoria].splice(indice,1);
+
+localStorage.setItem(
+"SAYSER_GES_PRODUCTS",
+JSON.stringify(produtos)
+);
+
+mostrar();
+
+}
+
+}
+
+
+function limpar(){
+
+document.getElementById("nome").value="";
+document.getElementById("descricao").value="";
+document.getElementById("preco").value="";
+document.getElementById("bonus").value="";
+document.getElementById("foto").value="";
+
+document.getElementById("preview").style.display="none";
+
+imagem="";
+editandoCategoria="";
+editandoIndice=-1;
+
+}
+
+
+function mostrar(){
+
+var lista=document.getElementById("lista");
+
+lista.innerHTML="";
+
+for(var categoria in produtos){
+
+for(var i=0;i<produtos[categoria].length;i++){
+
+var p=produtos[categoria][i];
+
+var div=document.createElement("div");
+
+div.className="item";
+
+var html="";
+
+if(p.imagem){
+html+="<img src='"+p.imagem+"'>";
+}
+
+html+="<b>"+p.nome+"</b><br>";
+html+="R$ "+p.preco+"<br>";
+html+="Bônus: "+p.bonus+"%<br>";
+
+html+="<button class='amarelo' onclick=\"editar('"+categoria+"',"+i+")\">EDITAR</button>";
+
+html+="<button class='vermelho' onclick=\"excluir('"+categoria+"',"+i+")\">EXCLUIR</button>";
+
+div.innerHTML=html;
+
+lista.appendChild(div);
+
+}
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
