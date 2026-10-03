@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Administrador - GES</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .box { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 50px auto; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .oculto { display: none; }
+        textarea { width: 100%; height: 120px; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; resize: vertical; }
+    </style>
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <div id="tela-login" class="box">
+        <h2>Área Restrita GES</h2>
+        <p>Digite a senha para editar o site</p>
+        <input type="password" id="senha" placeholder="Sua Senha Secreta">
+        <button onclick="verificarSenha()">Entrar no Painel</button>
+        <p id="erro" style="color: red; display: none; font-weight: bold;">Senha incorreta!</p>
+    </div>
+
+    <!-- PAINEL DE EDIÇÃO -->
+    <div id="painel-editor" class="box oculto">
+        <h2>Painel de Edição</h2>
+        <p>Altere o texto do regulamento do site:</p>
+        <textarea id="novo-texto" placeholder="Digite o novo regulamento aqui..."></textarea>
+        <button onclick="salvarAlteracoes()">Salvar Alterações</button>
+        <button onclick="fazerLogout()" style="background: #dc3545;">Sair do Painel</button>
+    </div>
+
+    <script>
+        // VOCÊ PODE MUDAR A SUA SENHA ALTERANDO O TEXTO ABAIXO
+        const SENHA_CORRETA = "admin123"; 
+
+        function verificarSenha() {
+            const senhaDigitada = document.getElementById('senha').value;
+            if (senhaDigitada === SENHA_CORRETA) {
+                document.getElementById('tela-login').classList.add('oculto');
+                document.getElementById('painel-editor').classList.remove('oculto');
+                document.getElementById('novo-texto').value = localStorage.getItem('textoSite') || "";
+            } else {
+                document.getElementById('erro').style.display = 'block';
+            }
+        }
+
+        function salvarAlteracoes() {
+            const texto = document.getElementById('novo-texto').value;
+            localStorage.setItem('textoSite', texto);
+            alert('Alterações salvas com sucesso!');
+        }
+
+        function fazerLogout() {
+            document.getElementById('tela-login').classList.remove('oculto');
+            document.getElementById('painel-editor').classList.add('oculto');
+            document.getElementById('senha').value = "";
+            document.getElementById('erro').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
